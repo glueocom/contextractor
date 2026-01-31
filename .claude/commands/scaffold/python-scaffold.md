@@ -10,7 +10,7 @@ Create a production-ready Python project with modern tooling and best practices.
 ## Usage
 
 ```
-/python-scaffold <project-type> [project-name]
+/scaffold:python-scaffold <project-type> [project-name]
 ```
 
 ## Project Types

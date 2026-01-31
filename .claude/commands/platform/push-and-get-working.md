@@ -14,7 +14,7 @@ Automated workflow to push code directly to Apify platform, wait for build, fix 
 Before anything else, run local unit tests to catch issues early:
 
 ```
-/local-tests
+/local-tests:prompt
 ```
 
 If any tests fail, fix the issues before proceeding. Do NOT continue with the push if tests fail.

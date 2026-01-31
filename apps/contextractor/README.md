@@ -136,7 +136,7 @@ Extract all blog posts from a site:
 }
 ```
 
-### References
+## References
 
 ##### 1. Article Extraction Benchmark
 ScrapingHub. [GitHub](https://github.com/scrapinghub/article-extraction-benchmark)
@@ -152,3 +152,7 @@ Barbaresi, Adrien. [GitHub](https://github.com/adbar/trafilatura)
 
 ##### 5. Trafilatura: A Web Scraping Library and Command-Line Tool for Text Discovery and Extraction
 Barbaresi, Adrien (2021). [ACL Anthology](https://aclanthology.org/2021.acl-demo.15/)
+
+
+## Docs version
+2026-01-31T18:02:40Z
