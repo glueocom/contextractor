@@ -6,7 +6,7 @@ Extract clean, readable content from any website. Uses [Trafilatura](https://tra
 
 Trafilatura is a Python library designed for web content extraction, created by Adrien Barbaresi at the Berlin-Brandenburg Academy of Sciences. The library achieves the **highest F1 score (0.958)** among open-source content extraction tools in independent benchmarks, outperforming newspaper4k (0.949), Mozilla Readability (0.947), and goose3 (0.896). [[1]](#1-article-extraction-benchmark)[[2]](#2-evaluation)
 
-With over 4,900 GitHub stars and production deployments at HuggingFace, IBM, and Microsoft Research, Trafilatura has become the de facto standard for text extraction in data pipelines and LLM applications. [[4]](#4-trafilatura-a-python-package--command-line-tool-to-gather-text-on-the-web)
+With over 4,900 GitHub stars and production deployments at HuggingFace, IBM, and Microsoft Research, Trafilatura has become the de facto standard for text extraction in data pipelines and LLM applications. [[4]](#4-trafilatura--a-python-package--command-line-tool-to-gather-text-on-the-web)
 
 ### Understanding the F1 Score
 
@@ -42,7 +42,7 @@ Trafilatura natively supports markdown output, which reduces token count by appr
 
 **Comprehensive metadata extraction**
 
-Beyond main content, Trafilatura automatically extracts structured metadata including title, author, publication date, language (via py3langid), site name, categories, tags, and content license. This metadata is invaluable for content organization, filtering, and downstream processing. [[4]](#4-trafilatura-a-python-package--command-line-tool-to-gather-text-on-the-web)
+Beyond main content, Trafilatura automatically extracts structured metadata including title, author, publication date, language (via py3langid), site name, categories, tags, and content license. This metadata is invaluable for content organization, filtering, and downstream processing. [[4]](#4-trafilatura--a-python-package--command-line-tool-to-gather-text-on-the-web)
 
 **Hybrid extraction with intelligent fallbacks**
 
@@ -50,7 +50,7 @@ Trafilatura achieves its superior accuracy through a multi-stage approach: it fi
 
 **Production-proven at scale**
 
-The library is trusted by major organizations including HuggingFace (for dataset curation), IBM, and Microsoft Research. Its efficient implementation handles large-scale crawling workloads without performance bottlenecks. [[4]](#4-trafilatura-a-python-package--command-line-tool-to-gather-text-on-the-web)
+The library is trusted by major organizations including HuggingFace (for dataset curation), IBM, and Microsoft Research. Its efficient implementation handles large-scale crawling workloads without performance bottlenecks. [[4]](#4-trafilatura--a-python-package--command-line-tool-to-gather-text-on-the-web)
 
 **Academic validation**
 
@@ -58,7 +58,7 @@ Unlike many extraction tools, Trafilatura has peer-reviewed academic backing. It
 
 ### Limitations
 
-- Results vary on galleries, catalogs, and link-heavy pages where main content is ambiguous [[4]](#4-trafilatura-a-python-package--command-line-tool-to-gather-text-on-the-web)
+- Results vary on galleries, catalogs, and link-heavy pages where main content is ambiguous [[4]](#4-trafilatura--a-python-package--command-line-tool-to-gather-text-on-the-web)
 
 ## Features
 
