@@ -16,7 +16,7 @@ Verify `tools/platform-test-runner/test-suites-output/` exists and contains test
 
 If directory is missing or empty, **STOP** and tell the user:
 
-> Test output not found. Run `/platform-test-runner:run-and-fix` first to generate test results.
+> Test output not found. Run `/platform-tests:run-and-fix` first to generate test results.
 
 ### Phase 1: Collect Test Data
 

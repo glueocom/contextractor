@@ -48,7 +48,7 @@ Execute the `run-and-fix` command:
 
 ### Phase 4: Generate Unit Tests (Optional)
 
-After tests pass, run `/platform-test-runner:generate-unit-tests` to create local vitest tests from the results.
+After tests pass, run `/platform-tests:generate-unit-tests` to create local vitest tests from the results.
 
 ## Success Criteria
 
