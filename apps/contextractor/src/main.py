@@ -70,8 +70,10 @@ async def main() -> None:
 
 async def _open_key_value_store(actor_input: dict) -> object:
     """Open key-value store for content storage."""
-    kvs_name = actor_input.get('keyValueStoreName') or 'content'
-    return await Actor.open_key_value_store(name=kvs_name)
+    kvs_name = actor_input.get('keyValueStoreName')
+    if kvs_name:
+        return await Actor.open_key_value_store(name=kvs_name)
+    return await Actor.open_key_value_store()
 
 
 async def _open_dataset(actor_input: dict) -> object | None:
