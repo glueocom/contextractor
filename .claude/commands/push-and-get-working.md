@@ -69,7 +69,7 @@ If local validation fails, fix Python errors before proceeding.
 Deploy directly to Apify platform from the actor directory:
 
 ```bash
-cd apps/contextractor && apify push
+cd apps/contextractor && apify push --actor-id shortc/contextractor-test
 ```
 
 This uploads source code and triggers a build on Apify infrastructure.
@@ -115,7 +115,7 @@ After a successful build, run the actor with a single test URL to verify it work
 
 ```bash
 # Call the actor on the platform with test input
-apify call --input '{"startUrls": [{"url": "https://en.wikipedia.org/wiki/List_of_sovereign_states"}], "maxPagesPerCrawl": 1}'
+apify call shortc/contextractor-test --input '{"startUrls": [{"url": "https://en.wikipedia.org/wiki/List_of_sovereign_states"}], "maxPagesPerCrawl": 1}'
 ```
 
 Wait for the run to complete. The `apify call` command will wait and show the output.
@@ -166,10 +166,7 @@ apify info
 apify login
 
 # Push to Apify from actor directory (triggers build)
-cd apps/contextractor && apify push
-
-# Push to specific actor (override actor.json name)
-cd apps/contextractor && apify push --actor-id <username>/<actor-name>
+cd apps/contextractor && apify push --actor-id shortc/contextractor-test
 
 # List recent builds
 apify builds ls
@@ -181,7 +178,7 @@ apify builds log <BUILD_ID>
 cd apps/contextractor && apify run
 
 # Call the actor on platform (waits for completion)
-apify call --input '{"startUrls": [{"url": "https://en.wikipedia.org/wiki/List_of_sovereign_states"}], "maxPagesPerCrawl": 1}'
+apify call shortc/contextractor-test --input '{"startUrls": [{"url": "https://en.wikipedia.org/wiki/List_of_sovereign_states"}], "maxPagesPerCrawl": 1}'
 
 # List recent runs
 apify runs ls
