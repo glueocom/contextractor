@@ -1,0 +1,23 @@
+{
+  "loadedUrl": "https://crawlee.dev/docs/introduction",
+  "rawHtml": {
+    "hash": "0ceb245d642eccc483fccfd8b8e6bdb1",
+    "length": 78037
+  },
+  "loadedAt": "2026-01-31T00:52:36.241265Z",
+  "metadata": {
+    "title": "Introduction | Crawlee for JavaScript · Build reliable crawlers. Fast.",
+    "author": null,
+    "publishedAt": "2026-01-30",
+    "description": "Your first steps into the world of scraping with Crawlee",
+    "siteName": "Build reliable crawlers. Fast.",
+    "lang": "en"
+  },
+  "httpStatus": 200,
+  "extractedJson": {
+    "key": "8b75d0b4f3f08848.json",
+    "url": "https://api.apify.com/v2/key-value-stores/hx5IObQagLB9bUmyG/records/8b75d0b4f3f08848.json?signature=1aXZQhW2LsxMFjOEWPdy",
+    "hash": "50fbb26bed7c82d03a092398b09fb324",
+    "length": 4534
+  }
+}

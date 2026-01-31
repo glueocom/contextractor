@@ -1,0 +1,23 @@
+{
+  "loadedUrl": "https://en.wikipedia.org/wiki/Web_scraping",
+  "rawHtml": {
+    "hash": "6fb5673599f3b85f38277e527c815733",
+    "length": 377349
+  },
+  "loadedAt": "2026-01-31T00:53:16.446421Z",
+  "metadata": {
+    "title": "Web scraping - Wikipedia",
+    "author": null,
+    "publishedAt": "2005-09-17",
+    "description": null,
+    "siteName": "Wikimedia Foundation, Inc.",
+    "lang": "en"
+  },
+  "httpStatus": 200,
+  "extractedXml": {
+    "key": "13cfc98ddfe0fd34.xml",
+    "url": "https://api.apify.com/v2/key-value-stores/hx5IObQagLB9bUmyG/records/13cfc98ddfe0fd34.xml?signature=1FFZj0R7k10v81fS592FQ",
+    "hash": "d2b42597b76357424eb785621bd8962c",
+    "length": 27640
+  }
+}

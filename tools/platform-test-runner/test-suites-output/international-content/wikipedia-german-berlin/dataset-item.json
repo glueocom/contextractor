@@ -1,0 +1,31 @@
+{
+  "loadedUrl": "https://de.wikipedia.org/wiki/Berlin",
+  "rawHtml": {
+    "hash": "e43c5a617dc932c47b27e72cd75b977c",
+    "length": 1217980,
+    "key": "3272fb4a4eec49fc-raw.html",
+    "url": "https://api.apify.com/v2/key-value-stores/hx5IObQagLB9bUmyG/records/3272fb4a4eec49fc-raw.html?signature=1uh4qrG7VeW4ZL4IFg8Rp"
+  },
+  "loadedAt": "2026-01-31T00:49:00.211076Z",
+  "metadata": {
+    "title": "Berlin – Wikipedia",
+    "author": null,
+    "publishedAt": "2001-11-01",
+    "description": null,
+    "siteName": "Wikimedia Foundation, Inc.",
+    "lang": "de"
+  },
+  "httpStatus": 200,
+  "extractedJson": {
+    "key": "3272fb4a4eec49fc.json",
+    "url": "https://api.apify.com/v2/key-value-stores/hx5IObQagLB9bUmyG/records/3272fb4a4eec49fc.json?signature=1AfwmRnvYyr5M8qfdrNml",
+    "hash": "871d2d57f71b7d621f792124f7b2ac8d",
+    "length": 343663
+  },
+  "extractedMarkdown": {
+    "key": "3272fb4a4eec49fc.md",
+    "url": "https://api.apify.com/v2/key-value-stores/hx5IObQagLB9bUmyG/records/3272fb4a4eec49fc.md?signature=1IkoS4IIXs2PEdGWXtq46",
+    "hash": "81b5b241a6c3eca1b64ae14991c6fe2b",
+    "length": 173005
+  }
+}

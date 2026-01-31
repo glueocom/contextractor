@@ -1,0 +1,25 @@
+{
+  "loadedUrl": "https://en.wikipedia.org/wiki/Comparison_of_programming_languages",
+  "rawHtml": {
+    "hash": "e141eee287c6505271e1341fb7229287",
+    "length": 479150,
+    "key": "1fa5119021ae518d-raw.html",
+    "url": "https://api.apify.com/v2/key-value-stores/hx5IObQagLB9bUmyG/records/1fa5119021ae518d-raw.html?signature=1mQIc4VVTb4VBsY8txzI2"
+  },
+  "loadedAt": "2026-01-31T00:54:19.508202Z",
+  "metadata": {
+    "title": "Comparison of programming languages - Wikipedia",
+    "author": null,
+    "publishedAt": "2005-12-13",
+    "description": null,
+    "siteName": "Wikimedia Foundation, Inc.",
+    "lang": "en"
+  },
+  "httpStatus": 200,
+  "extractedMarkdown": {
+    "key": "1fa5119021ae518d.md",
+    "url": "https://api.apify.com/v2/key-value-stores/hx5IObQagLB9bUmyG/records/1fa5119021ae518d.md?signature=mX1arM0F6rFILP3x2nlJ",
+    "hash": "cff4ed2d5b161f23db36b1553874e03b",
+    "length": 27922
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "loadedUrl": "https://www.reuters.com/technology/",
+  "rawHtml": {
+    "hash": "2ee1a06a4933de4a9f2d7fcc8cb63dc1",
+    "length": 583932,
+    "key": "60c1fdc064e124f7-raw.html",
+    "url": "https://api.apify.com/v2/key-value-stores/hx5IObQagLB9bUmyG/records/60c1fdc064e124f7-raw.html?signature=1E79CyYgCgMyc0pVMNF4M"
+  },
+  "loadedAt": "2026-01-31T00:52:28.747734Z",
+  "metadata": {
+    "title": "Tech News | Today's Latest Technology News | Reuters",
+    "author": null,
+    "publishedAt": "2026-01-30",
+    "description": "Find latest technology news from every corner of the globe at Reuters.com, your online source for breaking international news coverage.",
+    "siteName": "Reuters",
+    "lang": "en"
+  },
+  "httpStatus": 200,
+  "extractedJson": {
+    "key": "60c1fdc064e124f7.json",
+    "url": "https://api.apify.com/v2/key-value-stores/hx5IObQagLB9bUmyG/records/60c1fdc064e124f7.json?signature=pPzF1tV6Pw5K6nuqJoT",
+    "hash": "90a53633424bff9b70bde769099f6e0c",
+    "length": 1575
+  },
+  "extractedMarkdown": {
+    "key": "60c1fdc064e124f7.md",
+    "url": "https://api.apify.com/v2/key-value-stores/hx5IObQagLB9bUmyG/records/60c1fdc064e124f7.md?signature=1jOvmoiMrw5MyPFzP4Uwl",
+    "hash": "e3a3ab0cf577af7c968931aa7347108d",
+    "length": 780
+  }
+}

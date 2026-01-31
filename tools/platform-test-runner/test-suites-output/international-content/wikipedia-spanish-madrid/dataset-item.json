@@ -1,0 +1,31 @@
+{
+  "loadedUrl": "https://es.wikipedia.org/wiki/Madrid",
+  "rawHtml": {
+    "hash": "6f1e4cb8e4a34593e50866eb339ece1b",
+    "length": 1322619,
+    "key": "2d66618e9544281d-raw.html",
+    "url": "https://api.apify.com/v2/key-value-stores/hx5IObQagLB9bUmyG/records/2d66618e9544281d-raw.html?signature=1lGnFslW51aApxLfZp0t8"
+  },
+  "loadedAt": "2026-01-31T00:49:56.442018Z",
+  "metadata": {
+    "title": "Madrid - Wikipedia, la enciclopedia libre",
+    "author": null,
+    "publishedAt": "2001-11-01",
+    "description": null,
+    "siteName": "Wikimedia Foundation, Inc.",
+    "lang": "es"
+  },
+  "httpStatus": 200,
+  "extractedJson": {
+    "key": "2d66618e9544281d.json",
+    "url": "https://api.apify.com/v2/key-value-stores/hx5IObQagLB9bUmyG/records/2d66618e9544281d.json?signature=15t8gplFIJuvIpTIrERkn",
+    "hash": "50f1b29d05dacc72cd5126bbac961796",
+    "length": 390869
+  },
+  "extractedMarkdown": {
+    "key": "2d66618e9544281d.md",
+    "url": "https://api.apify.com/v2/key-value-stores/hx5IObQagLB9bUmyG/records/2d66618e9544281d.md?signature=ZHKqx6kzuYhR936LPMXa",
+    "hash": "d4b835e86c4c0b062ef596977bc461a9",
+    "length": 196819
+  }
+}
