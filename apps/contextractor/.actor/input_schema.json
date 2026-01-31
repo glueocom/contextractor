@@ -8,7 +8,7 @@
             "type": "array",
             "description": "URLs to extract content from",
             "editor": "requestListSources",
-            "prefill": [{"url": "https://en.wikipedia.org/wiki/List_of_sovereign_states"}]
+            "prefill": [{"url": "https://blog.apify.com/what-is-web-scraping/"}]
         },
         "globs": {
             "sectionCaption": "Crawler settings",
