@@ -60,6 +60,8 @@ def get_extraction_options(url: str, extraction_mode: str) -> dict[str, Any]:
         'url': url,
         'with_metadata': True,
         'include_tables': True,
+        'include_formatting': True,
+        'include_links': True,
         'favor_precision': extraction_mode == 'FAVOR_PRECISION',
         'favor_recall': extraction_mode == 'FAVOR_RECALL',
     }
