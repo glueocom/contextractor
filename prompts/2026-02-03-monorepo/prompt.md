@@ -106,7 +106,7 @@ Provide **factory methods** for convenience:
 ```python
 @dataclass
 class ExtractionConfig:
-    # ... fields above ...
+    # ... fields above with defaults ...
 
     @classmethod
     def balanced(cls) -> "ExtractionConfig":
@@ -125,8 +125,9 @@ class ExtractionConfig:
 
     def to_trafilatura_kwargs(self) -> dict[str, Any]:
         """Convert to trafilatura.extract() keyword arguments.
-        Excludes url, record_id, output_format — those are per-call."""
-        return {
+        Excludes url, record_id, output_format — those are per-call.
+        Only includes optional params if they are set (not None)."""
+        kwargs: dict[str, Any] = {
             "fast": self.fast,
             "favor_precision": self.favor_precision,
             "favor_recall": self.favor_recall,
@@ -136,15 +137,22 @@ class ExtractionConfig:
             "include_formatting": self.include_formatting,
             "include_links": self.include_links,
             "deduplicate": self.deduplicate,
-            "target_language": self.target_language,
             "with_metadata": self.with_metadata,
             "only_with_metadata": self.only_with_metadata,
             "tei_validation": self.tei_validation,
-            "prune_xpath": self.prune_xpath,
-            "url_blacklist": self.url_blacklist,
-            "author_blacklist": self.author_blacklist,
-            "date_extraction_params": self.date_extraction_params,
         }
+        # Only include optional params if set
+        if self.target_language is not None:
+            kwargs["target_language"] = self.target_language
+        if self.prune_xpath is not None:
+            kwargs["prune_xpath"] = self.prune_xpath
+        if self.url_blacklist is not None:
+            kwargs["url_blacklist"] = self.url_blacklist
+        if self.author_blacklist is not None:
+            kwargs["author_blacklist"] = self.author_blacklist
+        if self.date_extraction_params is not None:
+            kwargs["date_extraction_params"] = self.date_extraction_params
+        return kwargs
 ```
 
 ### Result types — also in `models.py`
@@ -154,26 +162,30 @@ class ExtractionConfig:
 class ExtractionResult:
     """Result from a single format extraction."""
     content: str
-    output_format: str  # "txt", "json", "markdown", "xml", "xmltei", "html", "csv"
+    output_format: str  # "txt", "json", "markdown", "xml", "xmltei"
 
 @dataclass
 class MetadataResult:
     """Extracted metadata from HTML."""
-    title: str | None
-    author: str | None
-    date: str | None
-    description: str | None
-    sitename: str | None
-    language: str | None
+    title: str | None = None
+    author: str | None = None
+    date: str | None = None
+    description: str | None = None
+    sitename: str | None = None
+    language: str | None = None
 ```
 
 ### Core extractor — `extractor.py`
+
+**Important:** `trafilatura.bare_extraction()` returns a `Document` object with attributes, NOT a dict. Use `getattr()` to access fields.
 
 ```python
 class ContentExtractor:
     """Trafilatura wrapper with configurable extraction."""
 
-    def __init__(self, config: ExtractionConfig | None = None):
+    DEFAULT_FORMATS = ["txt", "markdown", "json", "xml"]
+
+    def __init__(self, config: ExtractionConfig | None = None) -> None:
         self.config = config or ExtractionConfig.balanced()
 
     def extract(
@@ -195,10 +207,15 @@ class ContentExtractor:
         return ExtractionResult(content=result, output_format=output_format)
 
     def extract_metadata(self, html: str, url: str | None = None) -> MetadataResult:
-        """Extract metadata from HTML."""
+        """Extract metadata from HTML.
+
+        Note: bare_extraction returns a Document object with attributes,
+        not a dict. Use getattr() to access fields safely.
+        """
         raw = trafilatura.bare_extraction(html, url=url, with_metadata=True)
         if not raw:
-            return MetadataResult(...)  # all None
+            return MetadataResult()  # All fields default to None
+        # bare_extraction returns a Document object with attributes
         return MetadataResult(
             title=getattr(raw, "title", None),
             author=getattr(raw, "author", None),
@@ -216,8 +233,14 @@ class ContentExtractor:
     ) -> dict[str, ExtractionResult]:
         """Extract content in multiple formats at once.
         Default formats: ["txt", "markdown", "json", "xml"]
-        Returns dict keyed by format name."""
-        ...
+        Returns dict keyed by format name. Failed extractions are omitted."""
+        formats = formats or self.DEFAULT_FORMATS
+        results: dict[str, ExtractionResult] = {}
+        for fmt in formats:
+            result = self.extract(html, url=url, output_format=fmt)
+            if result is not None:
+                results[fmt] = result
+        return results
 ```
 
 ### Public API — `__init__.py`
@@ -238,6 +261,8 @@ __all__ = [
 
 ### Actor package config
 
+**Note:** Pin browserforge to avoid API compatibility issues with crawlee.
+
 ```toml
 [project]
 name = "contextractor"
@@ -247,6 +272,7 @@ dependencies = [
     "apify>=2.0.0,<4.0.0",
     "crawlee[playwright]>=0.4.0",
     "contextractor-engine",
+    "browserforge<1.2.4",
 ]
 
 [tool.uv.sources]
@@ -271,7 +297,7 @@ In `input_schema.json`, replace the `extractionMode` field with:
     "sectionCaption": "Content extraction",
     "title": "Extraction configuration",
     "type": "object",
-    "description": "Trafilatura extraction options. Leave empty for balanced defaults. See trafilatura docs for details.",
+    "description": "Trafilatura extraction options. Leave empty for balanced defaults. Keys: fast, favor_precision, favor_recall, include_comments, include_tables, include_images, include_formatting, include_links, deduplicate, target_language, with_metadata, only_with_metadata, tei_validation, prune_xpath.",
     "editor": "json",
     "default": {},
     "prefill": {}
@@ -305,18 +331,62 @@ Supported JSON keys (map 1:1 to `ExtractionConfig` fields):
 
 ### Refactor `src/config.py`
 
-- Remove `extraction_mode` from `build_crawl_config`
-- Add `extraction_config` key that passes through the raw dict
-- In `build_crawl_config`:
+**Important:** Crawlee's `Request.user_data` must be JSON-serializable. Pass the raw config dict, not an `ExtractionConfig` object. Build the `ExtractionConfig` in the handler.
 
 ```python
 from contextractor_engine import ExtractionConfig
 
-def build_extraction_config(raw: dict[str, Any]) -> ExtractionConfig:
-    """Build ExtractionConfig from actor input's extractionConfig field."""
+def build_extraction_config(raw: dict[str, Any] | None) -> ExtractionConfig:
+    """Build ExtractionConfig from raw dict."""
     if not raw:
         return ExtractionConfig.balanced()
-    return ExtractionConfig(**{k: v for k, v in raw.items() if v is not None})
+    # Filter out None values
+    filtered = {k: v for k, v in raw.items() if v is not None}
+    return ExtractionConfig(**filtered)
+
+def build_crawl_config(actor_input: dict[str, Any]) -> dict[str, Any]:
+    """Build crawl configuration from actor input.
+
+    Note: extraction_config_raw is passed as dict for JSON serialization in user_data.
+    The ExtractionConfig object is built in the handler.
+    """
+    return {
+        'save_raw_html': actor_input.get('saveRawHtmlToKeyValueStore', False),
+        'save_text': actor_input.get('saveExtractedTextToKeyValueStore', False),
+        'save_json': actor_input.get('saveExtractedJsonToKeyValueStore', False),
+        'save_markdown': actor_input.get('saveExtractedMarkdownToKeyValueStore', True),
+        'save_xml': actor_input.get('saveExtractedXmlToKeyValueStore', False),
+        'save_xmltei': actor_input.get('saveExtractedXmlTeiToKeyValueStore', False),
+        'extraction_config_raw': actor_input.get('extractionConfig', {}),  # Raw dict for JSON serialization
+        'globs': actor_input.get('globs', []),
+        'excludes': actor_input.get('excludes', []),
+        'link_selector': actor_input.get('linkSelector', ''),
+        'pseudo_urls': actor_input.get('pseudoUrls', []),
+        'keep_url_fragments': actor_input.get('keepUrlFragments', False),
+        'max_crawling_depth': actor_input.get('maxCrawlingDepth', 0),
+    }
+```
+
+### Refactor `src/handler.py`
+
+Build `ExtractionConfig` from raw dict in the handler:
+
+```python
+from contextractor_engine import ContentExtractor, ExtractionConfig
+
+# In handler:
+handler_config = context.request.user_data.get('config', {})
+extraction_config_raw = handler_config.get('extraction_config_raw', {})
+extraction_config = (
+    ExtractionConfig(**{k: v for k, v in extraction_config_raw.items() if v is not None})
+    if extraction_config_raw
+    else ExtractionConfig.balanced()
+)
+extractor = ContentExtractor(config=extraction_config)
+
+# In extraction:
+result = extractor.extract(html, url=url, output_format="markdown")
+metadata = extractor.extract_metadata(html, url=url)
 ```
 
 ### Refactor `src/extraction.py`
@@ -326,16 +396,36 @@ Replace direct `trafilatura` calls with `ContentExtractor`:
 ```python
 from contextractor_engine import ContentExtractor, ExtractionConfig
 
-# In handler setup:
-extractor = ContentExtractor(config=extraction_config)
+def extract_metadata(html: str, url: str, extractor: ContentExtractor) -> dict[str, Any]:
+    """Extract metadata from HTML."""
+    result = extractor.extract_metadata(html, url=url)
+    metadata = {
+        'title': result.title,
+        'author': result.author,
+        'publishedAt': result.date,
+        'description': result.description,
+        'siteName': result.sitename,
+        'lang': result.language,
+    }
+    # Fallback: extract lang from <html lang="..."> if not found
+    if not metadata['lang']:
+        lang_match = re.search(r'<html[^>]*\slang=["\']([^"\']+)["\']', html, re.IGNORECASE)
+        if lang_match:
+            metadata['lang'] = lang_match.group(1)
+    return metadata
 
-# In extraction:
-result = extractor.extract(html, url=url, output_format="markdown")
-metadata = extractor.extract_metadata(html, url=url)
+def extract_format(
+    html: str,
+    output_format: str,
+    extractor: ContentExtractor,
+    url: str | None = None,
+) -> str | None:
+    """Extract content in specified format."""
+    result = extractor.extract(html, url=url, output_format=output_format)
+    return result.content if result else None
 ```
 
 Remove `get_extraction_options()` — replaced by `ExtractionConfig.to_trafilatura_kwargs()`.
-Remove `extract_format()` — replaced by `ContentExtractor.extract()`.
 Keep `save_content_to_kvs()` and `compute_content_info()` in the actor (storage is actor-specific).
 
 ### Update Dockerfile for uv
@@ -435,3 +525,17 @@ Update to reflect:
 12. Update `docs/spec/tech-spec.md` and `docs/spec/functional-spec.md`
 13. Delete `apps/contextractor/requirements.txt`
 14. Test: `uv run --directory apps/contextractor python -m src` locally
+
+## Implementation Notes (from testing)
+
+These notes were added after implementing and testing the migration:
+
+1. **trafilatura.bare_extraction() returns Document object**: Not a dict. Use `getattr(raw, "field", None)` instead of `raw.get("field")`.
+
+2. **Crawlee Request.user_data must be JSON-serializable**: Cannot pass `ExtractionConfig` dataclass directly. Store raw dict as `extraction_config_raw` and build `ExtractionConfig` in the handler.
+
+3. **browserforge version compatibility**: crawlee's browserforge workaround may break with newer versions. Pin `browserforge<1.2.4` in actor dependencies.
+
+4. **MetadataResult fields**: Use dataclass defaults (`= None`) so empty result can be instantiated with `MetadataResult()`.
+
+5. **to_trafilatura_kwargs()**: Only include optional params (target_language, prune_xpath, etc.) if they're not None to avoid passing unnecessary None values to trafilatura.
