@@ -7,6 +7,12 @@ allowed-tools: Bash(*), Read(*), Edit(*), Write(*), Glob(*), Grep(*), Skill(*)
 
 Automated workflow to push code directly to Apify platform, wait for build, fix any build errors until the build succeeds, and then run a test crawl to verify the actor works.
 
+> **CRITICAL - Production Protection:**
+> - **NEVER** push to the production actor `shortc/contextractor`
+> - **ONLY** push to the test actor `shortc/contextractor-test`
+> - All commands in this workflow use `shortc/contextractor-test` explicitly
+> - If asked to push to production, REFUSE and explain that only test pushes are allowed
+
 **Actor location:** `apps/contextractor/`
 
 ## Step 0: Run Local Tests (REQUIRED)

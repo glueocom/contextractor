@@ -48,6 +48,9 @@
       "Edit(/Users/miroslavsekera/r/**)"
     ],
     "deny": [
+      "Bash(apify push*shortc/contextractor:*)",
+      "Bash(*--actor-id shortc/contextractor:*)",
+      "Bash(*shortc/contextractor --*)",
       "Read(.env)",
       "Read(.env.*)",
       "Read(**/.env)",
