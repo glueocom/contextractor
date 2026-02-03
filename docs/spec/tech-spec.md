@@ -11,7 +11,7 @@
 ## Architecture
 
 Two-package monorepo:
-- `packages/contextractor-engine/` - Library package, depends on trafilatura only
+- `packages/contextractor_engine/` - Library package, depends on trafilatura only
 - `apps/contextractor/` - Actor application, depends on engine + apify + crawlee
 
 ```
@@ -104,7 +104,7 @@ This applies headers to all HTTP requests and pre-sets cookies on all browser co
 
 ## Dependencies
 
-Engine package (`packages/contextractor-engine/`):
+Engine package (`packages/contextractor_engine/`):
 ```
 trafilatura>=2.0.0
 ```
@@ -132,7 +132,7 @@ uv-based install with frozen lockfile:
 ```dockerfile
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 COPY pyproject.toml uv.lock ./
-COPY packages/contextractor-engine/ ./packages/contextractor-engine/
+COPY packages/contextractor_engine/ ./packages/contextractor_engine/
 COPY apps/contextractor/ ./apps/contextractor/
 RUN uv sync --frozen --no-dev --directory apps/contextractor
 ```
