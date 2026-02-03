@@ -17,6 +17,7 @@ Restructure `/Users/miroslavsekera/r/contextractor/` from flat requirements.txt 
 │       │       ├── __init__.py
 │       │       ├── extractor.py      # Core extraction wrapper
 │       │       ├── models.py         # TrafilaturaConfig + result types
+│       │       ├── utils.py          # Key normalization (camelCase → snake_case)
 │       │       └── py.typed
 │       └── tests/
 │           └── test_extractor.py
@@ -155,6 +156,81 @@ class TrafilaturaConfig:
         return kwargs
 ```
 
+### Config key normalization utility — `utils.py`
+
+Add a utility function to normalize config keys from camelCase (API/JSON convention) to snake_case (Python/trafilatura convention). This allows consumers to send either format.
+
+```python
+"""Utility functions for contextractor-engine."""
+
+import re
+from typing import Any
+
+
+def normalize_config_keys(config: dict[str, Any]) -> dict[str, Any]:
+    """Normalize config dictionary keys to snake_case.
+
+    Accepts both camelCase (JSON/API convention) and snake_case (Python convention).
+    Auto-detects the format and converts camelCase to snake_case.
+    Keys already in snake_case are left unchanged.
+
+    Examples:
+        {"favorPrecision": True} -> {"favor_precision": True}
+        {"favor_precision": True} -> {"favor_precision": True}
+        {"includeLinks": True, "fast": False} -> {"include_links": True, "fast": False}
+
+    Args:
+        config: Dictionary with config keys in either camelCase or snake_case.
+
+    Returns:
+        Dictionary with all keys normalized to snake_case.
+    """
+    if not config:
+        return {}
+
+    def to_snake_case(key: str) -> str:
+        """Convert camelCase to snake_case. Leave snake_case unchanged."""
+        # If already contains underscore, assume it's snake_case
+        if "_" in key:
+            return key
+        # Convert camelCase to snake_case
+        # Insert underscore before uppercase letters and lowercase them
+        return re.sub(r"(?<!^)(?=[A-Z])", "_", key).lower()
+
+    return {to_snake_case(k): v for k, v in config.items()}
+```
+
+**Usage:**
+
+```python
+from contextractor_engine import normalize_config_keys, TrafilaturaConfig
+
+# API receives camelCase JSON from frontend
+raw_config = {"favorPrecision": True, "includeLinks": False}
+
+# Normalize to snake_case for TrafilaturaConfig
+normalized = normalize_config_keys(raw_config)
+# Result: {"favor_precision": True, "include_links": False}
+
+config = TrafilaturaConfig(**normalized)
+```
+
+Update `__init__.py` to export `normalize_config_keys`:
+
+```python
+from .extractor import ContentExtractor
+from .models import TrafilaturaConfig, ExtractionResult, MetadataResult
+from .utils import normalize_config_keys
+
+__all__ = [
+    "ContentExtractor",
+    "TrafilaturaConfig",
+    "ExtractionResult",
+    "MetadataResult",
+    "normalize_config_keys",
+]
+```
+
 ### Result types — also in `models.py`
 
 ```python
@@ -248,12 +324,14 @@ class ContentExtractor:
 ```python
 from .extractor import ContentExtractor
 from .models import TrafilaturaConfig, ExtractionResult, MetadataResult
+from .utils import normalize_config_keys
 
 __all__ = [
     "ContentExtractor",
     "TrafilaturaConfig",
     "ExtractionResult",
     "MetadataResult",
+    "normalize_config_keys",
 ]
 ```
 
@@ -306,26 +384,28 @@ In `input_schema.json`, replace the `extractionMode` field with:
 
 The `trafilaturaConfig` object is **optional**. When empty `{}` or absent, defaults to `TrafilaturaConfig.balanced()`.
 
-Supported JSON keys (map 1:1 to `TrafilaturaConfig` fields):
+**Important:** The input accepts **camelCase** keys (JavaScript/JSON convention). The engine's `normalize_config_keys()` converts them to snake_case internally.
+
+Supported JSON keys (camelCase for API, converted to snake_case internally):
 
 ```json
 {
     "fast": false,
-    "favor_precision": false,
-    "favor_recall": false,
-    "include_comments": true,
-    "include_tables": true,
-    "include_images": false,
-    "include_formatting": true,
-    "include_links": true,
+    "favorPrecision": false,
+    "favorRecall": false,
+    "includeComments": true,
+    "includeTables": true,
+    "includeImages": false,
+    "includeFormatting": true,
+    "includeLinks": true,
     "deduplicate": false,
-    "target_language": null,
-    "with_metadata": true,
-    "only_with_metadata": false,
-    "tei_validation": false,
-    "prune_xpath": null,
-    "url_blacklist": null,
-    "author_blacklist": null
+    "targetLanguage": null,
+    "withMetadata": true,
+    "onlyWithMetadata": false,
+    "teiValidation": false,
+    "pruneXpath": null,
+    "urlBlacklist": null,
+    "authorBlacklist": null
 }
 ```
 
@@ -334,14 +414,18 @@ Supported JSON keys (map 1:1 to `TrafilaturaConfig` fields):
 **Important:** Crawlee's `Request.user_data` must be JSON-serializable. Pass the raw config dict, not an `TrafilaturaConfig` object. Build the `TrafilaturaConfig` in the handler.
 
 ```python
-from contextractor_engine import TrafilaturaConfig
+from contextractor_engine import TrafilaturaConfig, normalize_config_keys
 
 def build_trafilatura_config(raw: dict[str, Any] | None) -> TrafilaturaConfig:
-    """Build TrafilaturaConfig from raw dict."""
+    """Build TrafilaturaConfig from raw dict.
+
+    Accepts both camelCase (from JSON API) and snake_case keys.
+    """
     if not raw:
         return TrafilaturaConfig.balanced()
-    # Filter out None values
-    filtered = {k: v for k, v in raw.items() if v is not None}
+    # Normalize keys (camelCase → snake_case) and filter out None values
+    normalized = normalize_config_keys(raw)
+    filtered = {k: v for k, v in normalized.items() if v is not None}
     return TrafilaturaConfig(**filtered)
 
 def build_crawl_config(actor_input: dict[str, Any]) -> dict[str, Any]:
@@ -372,16 +456,20 @@ def build_crawl_config(actor_input: dict[str, Any]) -> dict[str, Any]:
 Build `TrafilaturaConfig` from raw dict in the handler:
 
 ```python
-from contextractor_engine import ContentExtractor, TrafilaturaConfig
+from contextractor_engine import ContentExtractor, TrafilaturaConfig, normalize_config_keys
 
 # In handler:
 handler_config = context.request.user_data.get('config', {})
 trafilatura_config_raw = handler_config.get('trafilatura_config_raw', {})
-trafilatura_config = (
-    TrafilaturaConfig(**{k: v for k, v in trafilatura_config_raw.items() if v is not None})
-    if trafilatura_config_raw
-    else TrafilaturaConfig.balanced()
-)
+
+if trafilatura_config_raw:
+    # Normalize keys (camelCase → snake_case) and filter None values
+    normalized = normalize_config_keys(trafilatura_config_raw)
+    filtered = {k: v for k, v in normalized.items() if v is not None}
+    trafilatura_config = TrafilaturaConfig(**filtered)
+else:
+    trafilatura_config = TrafilaturaConfig.balanced()
+
 extractor = ContentExtractor(config=trafilatura_config)
 
 # In extraction:
