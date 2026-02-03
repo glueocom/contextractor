@@ -271,14 +271,14 @@ dependencies = [
 requires-dist = [
     { name = "apify", specifier = ">=2.0.0,<4.0.0" },
     { name = "browserforge", specifier = "<1.2.4" },
-    { name = "contextractor-engine", editable = "packages/contextractor-engine" },
+    { name = "contextractor-engine", editable = "packages/contextractor_engine" },
     { name = "crawlee", extras = ["playwright"], specifier = ">=0.4.0" },
 ]
 
 [[package]]
 name = "contextractor-engine"
 version = "0.1.0"
-source = { editable = "packages/contextractor-engine" }
+source = { editable = "packages/contextractor_engine" }
 dependencies = [
     { name = "trafilatura" },
 ]

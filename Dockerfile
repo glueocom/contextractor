@@ -9,7 +9,7 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 COPY --chown=myuser:myuser pyproject.toml uv.lock ./
 
 # Copy engine package
-COPY --chown=myuser:myuser packages/contextractor-engine/ ./packages/contextractor-engine/
+COPY --chown=myuser:myuser packages/contextractor_engine/ ./packages/contextractor_engine/
 
 # Copy actor package
 COPY --chown=myuser:myuser apps/contextractor/ ./apps/contextractor/
