@@ -6,7 +6,7 @@ Extract clean, readable content from any website. Uses [Trafilatura](https://tra
 
 Trafilatura is a Python library designed for web content extraction, created by Adrien Barbaresi at the Berlin-Brandenburg Academy of Sciences. The library achieves the **highest F1 score (0.958)** among open-source content extraction tools in independent benchmarks, outperforming newspaper4k (0.949), Mozilla Readability (0.947), and goose3 (0.896). [[1]](#1-article-extraction-benchmark)[[2]](#2-evaluation)
 
-With over 4,900 GitHub stars and production deployments at HuggingFace, IBM, and Microsoft Research, Trafilatura has become the de facto standard for text extraction in data pipelines and LLM applications. [[4]](#4-trafilatura-a-python-package--command-line-tool-to-gather-text-on-the-web)
+With over 4,900 GitHub stars and production deployments at HuggingFace, IBM, and Microsoft Research, Trafilatura has become the de facto standard for text extraction in data pipelines and LLM applications. [[3]](#3-trafilatura-a-python-package--command-line-tool-to-gather-text-on-the-web)
 
 ### Understanding the F1 Score
 
@@ -38,11 +38,11 @@ Trafilatura's 0.978 recall is particularly notable — it captures nearly all re
 
 **LLM-optimized output formats**
 
-Trafilatura natively supports markdown output, which reduces token count by approximately 67% compared to raw HTML. [[3]](#3-an-introduction-to-preparing-your-own-dataset-for-llm-training) This makes it ideal for RAG pipelines, LLM fine-tuning datasets, and any application where token efficiency matters. The library supports seven output formats: plain text, Markdown, HTML, XML, XML-TEI (for academic research), JSON, and CSV.
+Trafilatura natively supports markdown output, which reduces token count by approximately 67% compared to raw HTML. [[4]](#4-an-introduction-to-preparing-your-own-dataset-for-llm-training) This makes it ideal for RAG pipelines, LLM fine-tuning datasets, and any application where token efficiency matters. The library supports seven output formats: plain text, Markdown, HTML, XML, XML-TEI (for academic research), JSON, and CSV.
 
 **Comprehensive metadata extraction**
 
-Beyond main content, Trafilatura automatically extracts structured metadata including title, author, publication date, language (via py3langid), site name, categories, tags, and content license. This metadata is invaluable for content organization, filtering, and downstream processing. [[4]](#4-trafilatura-a-python-package--command-line-tool-to-gather-text-on-the-web)
+Beyond main content, Trafilatura automatically extracts structured metadata including title, author, publication date, language (via py3langid), site name, categories, tags, and content license. This metadata is invaluable for content organization, filtering, and downstream processing. [[3]](#3-trafilatura-a-python-package--command-line-tool-to-gather-text-on-the-web)
 
 **Hybrid extraction with intelligent fallbacks**
 
@@ -50,7 +50,7 @@ Trafilatura achieves its superior accuracy through a multi-stage approach: it fi
 
 **Production-proven at scale**
 
-The library is trusted by major organizations including HuggingFace (for dataset curation), IBM, and Microsoft Research. Its efficient implementation handles large-scale crawling workloads without performance bottlenecks. [[4]](#4-trafilatura-a-python-package--command-line-tool-to-gather-text-on-the-web)
+The library is trusted by major organizations including HuggingFace (for dataset curation), IBM, and Microsoft Research. Its efficient implementation handles large-scale crawling workloads without performance bottlenecks. [[3]](#3-trafilatura-a-python-package--command-line-tool-to-gather-text-on-the-web)
 
 **Academic validation**
 
@@ -58,7 +58,7 @@ Unlike many extraction tools, Trafilatura has peer-reviewed academic backing. It
 
 ### Limitations
 
-- Results vary on galleries, catalogs, and link-heavy pages where main content is ambiguous [[4]](#4-trafilatura-a-python-package--command-line-tool-to-gather-text-on-the-web)
+- Results vary on galleries, catalogs, and link-heavy pages where main content is ambiguous [[3]](#3-trafilatura-a-python-package--command-line-tool-to-gather-text-on-the-web)
 
 ## Features
 
@@ -82,7 +82,7 @@ Unlike many extraction tools, Trafilatura has peer-reviewed academic backing. It
 | `startUrls` (required) | URLs to extract content from |  |
 | `globs` | Glob patterns for URLs to include in crawling | `[]` |
 | `excludes` | Glob patterns for URLs to exclude | `[]` |
-| `extractionMode` | `FAVOR_PRECISION`, `BALANCED`, or `FAVOR_RECALL` | `BALANCED` |
+| `trafilaturaConfig` | Extraction options object (e.g., `{"favorPrecision": true}`) | `{}` (balanced) |
 | `maxPagesPerCrawl` | Limit total pages crawled (0 = unlimited) | `0` |
 | `maxCrawlingDepth` | Limit link depth from start URLs | `0` |
 | `saveExtractedMarkdownToKeyValueStore` | Save Markdown to key-value store | `true` |
@@ -131,12 +131,12 @@ Extract all blog posts from a site:
   "globs": [{ "glob": "https://example.com/blog/**" }],
   "linkSelector": "a",
   "maxPagesPerCrawl": 100,
-  "extractionMode": "BALANCED",
+  "trafilaturaConfig": {},
   "saveExtractedMarkdownToKeyValueStore": true
 }
 ```
 
-### References
+## References
 
 ##### 1. Article Extraction Benchmark
 ScrapingHub. [GitHub](https://github.com/scrapinghub/article-extraction-benchmark)
@@ -144,11 +144,15 @@ ScrapingHub. [GitHub](https://github.com/scrapinghub/article-extraction-benchmar
 ##### 2. Evaluation
 Barbaresi, Adrien. [Trafilatura Documentation v2.0.0](https://trafilatura.readthedocs.io/en/latest/evaluation.html)
 
-##### 3. An introduction to preparing your own dataset for LLM training
-AWS Machine Learning Blog. [Amazon Web Services](https://aws.amazon.com/blogs/machine-learning/an-introduction-to-preparing-your-own-dataset-for-llm-training/)
-
-##### 4. Trafilatura: A Python package & command-line tool to gather text on the Web
+##### 3. Trafilatura: A Python package & command-line tool to gather text on the Web
 Barbaresi, Adrien. [GitHub](https://github.com/adbar/trafilatura)
+
+##### 4. An introduction to preparing your own dataset for LLM training
+AWS Machine Learning Blog. [Amazon Web Services](https://aws.amazon.com/blogs/machine-learning/an-introduction-to-preparing-your-own-dataset-for-llm-training/)
 
 ##### 5. Trafilatura: A Web Scraping Library and Command-Line Tool for Text Discovery and Extraction
 Barbaresi, Adrien (2021). [ACL Anthology](https://aclanthology.org/2021.acl-demo.15/)
+
+
+## Docs version
+2026-01-31T18:42:11Z

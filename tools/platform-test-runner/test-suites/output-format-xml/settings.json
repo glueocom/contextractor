@@ -5,7 +5,7 @@
     "saveExtractedTextToKeyValueStore": false,
     "saveExtractedJsonToKeyValueStore": false,
     "saveExtractedXmlToKeyValueStore": true,
-    "extractionMode": "BALANCED",
+    "trafilaturaConfig": {},
     "maxRequestRetries": 3,
     "pageLoadTimeoutSecs": 60,
     "maxPagesPerCrawl": 2

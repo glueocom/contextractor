@@ -102,15 +102,12 @@
             "default": 3,
             "minimum": 0
         },
-        "extractionMode": {
+        "trafilaturaConfig": {
             "sectionCaption": "Content extraction",
-            "title": "Extraction mode",
-            "type": "string",
-            "description": "Balance between precision and recall when extracting content",
-            "editor": "select",
-            "default": "BALANCED",
-            "enum": ["FAVOR_PRECISION", "BALANCED", "FAVOR_RECALL"],
-            "enumTitles": ["High precision (less noise)", "Balanced", "High recall (more content)"]
+            "title": "Trafilatura options",
+            "type": "object",
+            "description": "Trafilatura library extraction settings. Leave empty for balanced defaults. Keys: fast, favorPrecision, favorRecall, includeComments, includeTables, includeImages, includeFormatting, includeLinks, deduplicate, targetLanguage, withMetadata, onlyWithMetadata, teiValidation, pruneXpath.",
+            "editor": "json"
         },
         "saveRawHtmlToKeyValueStore": {
             "sectionCaption": "Output settings",

@@ -19,10 +19,38 @@ Contextractor crawls websites and extracts clean, readable content using Trafila
 | exportMarkdown | boolean | true | Extract Markdown |
 | exportXml | boolean | false | Extract XML |
 | exportXmlTei | boolean | false | Extract XML-TEI scholarly format |
-| extractionMode | enum | BALANCED | FAVOR_PRECISION, BALANCED, FAVOR_RECALL |
+| trafilaturaConfig | object | {} | Trafilatura extraction options (see below) |
 | includeMetadata | boolean | true | Include title, author, date |
 | initialCookies | array | [] | Pre-set cookies for authentication (encrypted) |
 | customHttpHeaders | object | {} | Custom HTTP headers for all requests |
+
+### trafilaturaConfig
+
+Optional JSON object with Trafilatura extraction options. When empty `{}` or omitted, uses balanced defaults.
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| fast | boolean | false | Fast mode (less thorough) |
+| favorPrecision | boolean | false | High precision, less noise |
+| favorRecall | boolean | false | High recall, more content |
+| includeComments | boolean | true | Include comments |
+| includeTables | boolean | true | Include tables |
+| includeImages | boolean | false | Include images |
+| includeFormatting | boolean | true | Preserve formatting |
+| includeLinks | boolean | true | Include links |
+| deduplicate | boolean | false | Deduplicate content |
+| targetLanguage | string | null | Target language code |
+| withMetadata | boolean | true | Extract metadata |
+| onlyWithMetadata | boolean | false | Only return if metadata found |
+| teiValidation | boolean | false | Validate TEI output |
+| pruneXpath | string/array | null | XPath expressions to prune |
+
+**Backward compatibility:**
+- `{}` or omitted = previous `BALANCED` mode
+- `{"favorPrecision": true}` = previous `FAVOR_PRECISION` mode
+- `{"favorRecall": true}` = previous `FAVOR_RECALL` mode
+
+**Note:** Keys accept both camelCase (JSON convention) and snake_case (Python convention). camelCase is converted to snake_case internally.
 
 ## Output
 

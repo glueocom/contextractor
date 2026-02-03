@@ -4,9 +4,27 @@ from __future__ import annotations
 
 from typing import Any
 
+from contextractor_engine import TrafilaturaConfig, normalize_config_keys
+
+
+def build_trafilatura_config(raw: dict[str, Any] | None) -> TrafilaturaConfig:
+    """Build TrafilaturaConfig from raw dict.
+
+    Accepts both camelCase (from JSON API) and snake_case keys.
+    """
+    if not raw:
+        return TrafilaturaConfig.balanced()
+    # Normalize keys (camelCase → snake_case) and filter out None values
+    normalized = normalize_config_keys(raw)
+    filtered = {k: v for k, v in normalized.items() if v is not None}
+    return TrafilaturaConfig(**filtered)
+
 
 def build_crawl_config(actor_input: dict[str, Any]) -> dict[str, Any]:
     """Build crawl configuration from actor input.
+
+    Note: trafilatura_config_raw is passed as dict for JSON serialization in user_data.
+    The TrafilaturaConfig object is built in the handler.
 
     Args:
         actor_input: Raw actor input dictionary.
@@ -21,7 +39,7 @@ def build_crawl_config(actor_input: dict[str, Any]) -> dict[str, Any]:
         'save_markdown': actor_input.get('saveExtractedMarkdownToKeyValueStore', True),
         'save_xml': actor_input.get('saveExtractedXmlToKeyValueStore', False),
         'save_xmltei': actor_input.get('saveExtractedXmlTeiToKeyValueStore', False),
-        'extraction_mode': actor_input.get('extractionMode', 'BALANCED'),
+        'trafilatura_config_raw': actor_input.get('trafilaturaConfig', {}),  # Raw dict for JSON serialization
         'globs': actor_input.get('globs', []),
         'excludes': actor_input.get('excludes', []),
         'link_selector': actor_input.get('linkSelector', ''),

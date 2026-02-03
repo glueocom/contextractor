@@ -9,11 +9,12 @@ from typing import Any
 from apify import Actor
 from crawlee.crawlers import PlaywrightCrawlingContext
 
+from contextractor_engine import ContentExtractor, TrafilaturaConfig, normalize_config_keys
+
 from .extraction import (
     compute_content_info,
     extract_format,
     extract_metadata,
-    get_extraction_options,
     save_content_to_kvs,
 )
 
@@ -74,8 +75,18 @@ def create_request_handler(
         key_base = hashlib.md5(url.encode()).hexdigest()[:16]
 
         handler_config = context.request.user_data.get('config', {})
-        extraction_mode = handler_config.get('extraction_mode', 'BALANCED')
-        extract_opts = get_extraction_options(url, extraction_mode)
+
+        # Build TrafilaturaConfig from raw dict
+        trafilatura_config_raw = handler_config.get('trafilatura_config_raw', {})
+        if trafilatura_config_raw:
+            # Normalize keys (camelCase → snake_case) and filter None values
+            normalized = normalize_config_keys(trafilatura_config_raw)
+            filtered = {k: v for k, v in normalized.items() if v is not None}
+            trafilatura_config = TrafilaturaConfig(**filtered)
+        else:
+            trafilatura_config = TrafilaturaConfig.balanced()
+
+        extractor = ContentExtractor(config=trafilatura_config)
 
         # Build raw HTML info
         html_bytes = html.encode('utf-8')
@@ -87,8 +98,8 @@ def create_request_handler(
             raw_html_info['key'] = html_key
             raw_html_info['url'] = await kvs.get_public_url(html_key)
 
-        # Extract metadata
-        metadata = extract_metadata(html, url)
+        # Extract metadata using ContentExtractor
+        metadata = extract_metadata(html, url, extractor)
 
         # Build dataset entry
         data: dict[str, Any] = {
@@ -100,7 +111,7 @@ def create_request_handler(
         }
 
         # Save extracted formats
-        await _save_extracted_formats(kvs, key_base, html, extract_opts, handler_config, data)
+        await _save_extracted_formats(kvs, key_base, html, url, extractor, handler_config, data)
 
         # Push data to dataset
         if dataset:
@@ -128,7 +139,8 @@ async def _save_extracted_formats(
     kvs: Any,
     key_base: str,
     html: str,
-    extract_opts: dict[str, Any],
+    url: str,
+    extractor: ContentExtractor,
     config: dict[str, Any],
     data: dict[str, Any],
 ) -> None:
@@ -138,7 +150,8 @@ async def _save_extracted_formats(
         kvs: Key-value store.
         key_base: Base key for storage.
         html: Raw HTML content.
-        extract_opts: Trafilatura options.
+        url: Source URL.
+        extractor: ContentExtractor instance.
         config: Handler configuration.
         data: Data dict to update with results.
     """
@@ -152,7 +165,7 @@ async def _save_extracted_formats(
 
     for config_key, output_format, data_key, content_type in format_configs:
         if config.get(config_key):
-            content = extract_format(html, output_format, extract_opts)
+            content = extract_format(html, output_format, extractor, url=url)
             if content:
                 ext = 'tei.xml' if output_format == 'xmltei' else output_format
                 if output_format == 'markdown':

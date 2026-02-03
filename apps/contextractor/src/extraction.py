@@ -1,4 +1,4 @@
-"""Content extraction using trafilatura."""
+"""Content extraction using contextractor-engine."""
 
 from __future__ import annotations
 
@@ -6,36 +6,29 @@ import hashlib
 import re
 from typing import Any
 
-import trafilatura
+from contextractor_engine import ContentExtractor
 
 
-def extract_metadata(html: str, url: str) -> dict[str, Any]:
-    """Extract metadata from HTML using trafilatura.
+def extract_metadata(html: str, url: str, extractor: ContentExtractor) -> dict[str, Any]:
+    """Extract metadata from HTML.
 
     Args:
         html: Raw HTML content.
         url: Source URL for context.
+        extractor: ContentExtractor instance with configured options.
 
     Returns:
         Dictionary with extracted metadata fields.
     """
-    metadata_result = trafilatura.bare_extraction(html, url=url, with_metadata=True)
+    result = extractor.extract_metadata(html, url=url)
     metadata: dict[str, Any] = {
-        'title': None,
-        'author': None,
-        'publishedAt': None,
-        'description': None,
-        'siteName': None,
-        'lang': None,
+        'title': result.title,
+        'author': result.author,
+        'publishedAt': result.date,
+        'description': result.description,
+        'siteName': result.sitename,
+        'lang': result.language,
     }
-
-    if metadata_result:
-        metadata['title'] = getattr(metadata_result, 'title', None)
-        metadata['author'] = getattr(metadata_result, 'author', None)
-        metadata['publishedAt'] = getattr(metadata_result, 'date', None)
-        metadata['description'] = getattr(metadata_result, 'description', None)
-        metadata['siteName'] = getattr(metadata_result, 'sitename', None)
-        metadata['lang'] = getattr(metadata_result, 'language', None)
 
     # Fallback: extract lang from <html lang="..."> if not found
     if not metadata['lang']:
@@ -46,23 +39,25 @@ def extract_metadata(html: str, url: str) -> dict[str, Any]:
     return metadata
 
 
-def get_extraction_options(url: str, extraction_mode: str) -> dict[str, Any]:
-    """Build trafilatura extraction options.
+def extract_format(
+    html: str,
+    output_format: str,
+    extractor: ContentExtractor,
+    url: str | None = None,
+) -> str | None:
+    """Extract content in specified format.
 
     Args:
-        url: Source URL.
-        extraction_mode: One of BALANCED, FAVOR_PRECISION, FAVOR_RECALL.
+        html: Raw HTML content.
+        output_format: One of txt, json, markdown, xml, xmltei.
+        extractor: ContentExtractor instance with configured options.
+        url: Optional source URL.
 
     Returns:
-        Options dictionary for trafilatura.extract().
+        Extracted content or None if extraction failed.
     """
-    return {
-        'url': url,
-        'with_metadata': True,
-        'include_tables': True,
-        'favor_precision': extraction_mode == 'FAVOR_PRECISION',
-        'favor_recall': extraction_mode == 'FAVOR_RECALL',
-    }
+    result = extractor.extract(html, url=url, output_format=output_format)
+    return result.content if result else None
 
 
 def compute_content_info(content: str | bytes) -> dict[str, Any]:
@@ -107,21 +102,3 @@ async def save_content_to_kvs(
         'hash': hashlib.md5(content_bytes).hexdigest(),
         'length': len(content_bytes),
     }
-
-
-def extract_format(
-    html: str,
-    output_format: str,
-    extract_opts: dict[str, Any],
-) -> str | None:
-    """Extract content in specified format.
-
-    Args:
-        html: Raw HTML content.
-        output_format: One of txt, json, markdown, xml, xmltei.
-        extract_opts: Trafilatura extraction options.
-
-    Returns:
-        Extracted content or None if extraction failed.
-    """
-    return trafilatura.extract(html, output_format=output_format, **extract_opts)
