@@ -86,12 +86,11 @@ Ask first:
 - Dockerfile changes affecting builds
 - deleting datasets or key-value stores
 
-**CRITICAL - Production Protection:**
+**Production Protection:**
 
-- **NEVER** push to the production actor `shortc/contextractor`
-- **ONLY** push to the test actor `shortc/contextractor-test`
-- Always use `apify push --actor-id shortc/contextractor-test` explicitly
-- If you see any command targeting `shortc/contextractor` (without `-test`), STOP and refuse to execute
+- By default, push to the test actor `shortc/contextractor-test`
+- Only push to production `shortc/contextractor` when explicitly requested with `--production` flag
+- Use `/platform:push-and-get-working --production` for production deployments
 
 ## Project Structure
 

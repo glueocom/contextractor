@@ -7,11 +7,16 @@ allowed-tools: Bash(*), Read(*), Edit(*), Write(*), Glob(*), Grep(*), Skill(*)
 
 Automated workflow to push code directly to Apify platform, wait for build, fix any build errors until the build succeeds, and then run a test crawl to verify the actor works.
 
-> **CRITICAL - Production Protection:**
-> - **NEVER** push to the production actor `shortc/contextractor`
-> - **ONLY** push to the test actor `shortc/contextractor-test`
-> - All commands in this workflow use `shortc/contextractor-test` explicitly
-> - If asked to push to production, REFUSE and explain that only test pushes are allowed
+**IMPORTANT:** This is a fully automated workflow. Do NOT ask for confirmation at any step. Execute all steps automatically without pausing for user input.
+
+## Target Actor Selection
+
+Check `$ARGUMENTS` for the target:
+
+- If `$ARGUMENTS` contains `--production` → Push to **production** actor `shortc/contextractor`
+- Otherwise → Push to **test** actor `shortc/contextractor-test` (default)
+
+Set the target actor ID based on the argument and use it consistently throughout the workflow.
 
 **Actor location:** `apps/contextractor/`
 
@@ -50,7 +55,7 @@ cat apps/contextractor/.actor/actor.json | grep '"name"'
 apify info
 ```
 
-Proceed automatically with the push. Only ask for confirmation if there's a critical issue (e.g., not logged in).
+Proceed automatically with the push. Do NOT ask for confirmation - only stop if not logged in.
 
 ### 3. Check Git Integration
 
@@ -75,7 +80,11 @@ If local validation fails, fix Python errors before proceeding.
 Deploy directly to Apify platform from the actor directory:
 
 ```bash
-cd apps/contextractor && apify push --actor-id shortc/contextractor-test
+# If --production argument was provided:
+cd apps/contextractor && apify push shortc/contextractor
+
+# Otherwise (default - test):
+cd apps/contextractor && apify push shortc/contextractor-test
 ```
 
 This uploads source code and triggers a build on Apify infrastructure.
@@ -120,8 +129,8 @@ If **FAILED**:
 After a successful build, run the actor with a single test URL to verify it works:
 
 ```bash
-# Call the actor on the platform with test input
-apify call shortc/contextractor-test --input '{"startUrls": [{"url": "https://en.wikipedia.org/wiki/List_of_sovereign_states"}], "maxPagesPerCrawl": 1}'
+# Call the actor on the platform with test input (use the target actor based on --production flag)
+apify call <TARGET_ACTOR> --input '{"startUrls": [{"url": "https://en.wikipedia.org/wiki/List_of_sovereign_states"}], "maxPagesPerCrawl": 1}'
 ```
 
 Wait for the run to complete. The `apify call` command will wait and show the output.
@@ -146,7 +155,9 @@ If **RUN FAILED**:
 
 ## Arguments
 
-$ARGUMENTS - Optional: specific files to focus on, or "skip-validation" to skip local validation step
+$ARGUMENTS - Optional arguments:
+- `--production` - Push to production actor `shortc/contextractor` instead of test
+- `skip-validation` - Skip local validation step
 
 ## Error Type Reference
 
@@ -172,7 +183,8 @@ apify info
 apify login
 
 # Push to Apify from actor directory (triggers build)
-cd apps/contextractor && apify push --actor-id shortc/contextractor-test
+cd apps/contextractor && apify push shortc/contextractor-test  # test
+cd apps/contextractor && apify push shortc/contextractor       # production (with --production flag)
 
 # List recent builds
 apify builds ls
@@ -184,7 +196,7 @@ apify builds log <BUILD_ID>
 cd apps/contextractor && apify run
 
 # Call the actor on platform (waits for completion)
-apify call shortc/contextractor-test --input '{"startUrls": [{"url": "https://en.wikipedia.org/wiki/List_of_sovereign_states"}], "maxPagesPerCrawl": 1}'
+apify call <TARGET_ACTOR> --input '{"startUrls": [{"url": "https://en.wikipedia.org/wiki/List_of_sovereign_states"}], "maxPagesPerCrawl": 1}'
 
 # List recent runs
 apify runs ls
