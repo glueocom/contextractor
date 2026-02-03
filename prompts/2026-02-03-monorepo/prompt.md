@@ -602,17 +602,108 @@ Update to reflect:
 1. Initialize uv workspace at root (`pyproject.toml`, `.python-version`)
 2. Create `packages/contextractor-engine/` with package structure
 3. Implement `models.py` (TrafilaturaConfig, ExtractionResult, MetadataResult)
-4. Implement `extractor.py` (ContentExtractor)
-5. Write basic tests for engine
-6. Migrate `apps/contextractor/` to use workspace dependency
-7. Refactor actor to use `ContentExtractor` instead of direct trafilatura calls
-8. Replace `extractionMode` with `trafilaturaConfig` in input schema
-9. Update Dockerfile for uv
-10. Create `scripts/build-engine.sh`
-11. Run `uv sync` and verify everything resolves
-12. Update `docs/spec/tech-spec.md` and `docs/spec/functional-spec.md`
-13. Delete `apps/contextractor/requirements.txt`
-14. Test: `uv run --directory apps/contextractor python -m src` locally
+4. Implement `utils.py` (normalize_config_keys)
+5. Implement `extractor.py` (ContentExtractor)
+6. Write basic tests for engine
+7. Migrate `apps/contextractor/` to use workspace dependency
+8. Refactor actor to use `ContentExtractor` instead of direct trafilatura calls
+9. Replace `extractionMode` with `trafilaturaConfig` in input schema
+10. Update Dockerfile for uv
+11. Create `scripts/build-engine.sh`
+12. Run `uv sync` and verify everything resolves
+13. Update `docs/spec/tech-spec.md` and `docs/spec/functional-spec.md`
+14. Delete `apps/contextractor/requirements.txt`
+
+## Phase 6: Testing
+
+### Local Testing
+
+Test the actor locally on a single page to verify basic functionality:
+
+```bash
+# Create test input
+mkdir -p apps/contextractor/storage/key_value_stores/default
+cat > apps/contextractor/storage/key_value_stores/default/INPUT.json << 'EOF'
+{
+    "startUrls": [{"url": "https://blog.apify.com/what-is-web-scraping/"}],
+    "maxPagesPerCrawl": 1,
+    "saveExtractedMarkdownToKeyValueStore": true,
+    "trafilaturaConfig": {}
+}
+EOF
+
+# Run locally
+uv run --directory apps/contextractor python -m src
+```
+
+**Expected output:**
+- Actor initializes and processes the URL
+- Markdown file saved to key-value store
+- Dataset entry with metadata (title, author, date, etc.)
+- No errors in console
+
+**Test with trafilaturaConfig options:**
+```json
+{
+    "startUrls": [{"url": "https://example.com"}],
+    "maxPagesPerCrawl": 1,
+    "trafilaturaConfig": {
+        "favorPrecision": true,
+        "includeLinks": false
+    }
+}
+```
+
+### Platform Testing
+
+After local testing passes, run the full platform test suite on Apify:
+
+```bash
+# Run the sync-and-test command
+/platform-tests:sync-and-test
+```
+
+This command will:
+1. Review actor configuration against test suites
+2. Sync test suite settings with current input schema
+3. Run all test suites on Apify platform
+4. Analyze and fix any failures
+5. Generate analysis report
+
+**Test suites location:** `tools/platform-test-runner/test-suites/`
+
+### Success Criteria
+
+- [ ] Local test extracts content successfully
+- [ ] Metadata extracted (title, author, date, etc.)
+- [ ] trafilaturaConfig options are respected
+- [ ] Platform tests pass on Apify
+- [ ] No regressions in existing functionality
+
+## Phase 7: Commit and Push
+
+After all tests pass:
+
+```bash
+# Stage all changes
+git add -A
+
+# Commit with descriptive message
+git commit -m "Migrate to uv workspace monorepo with contextractor-engine package
+
+- Create packages/contextractor-engine/ with TrafilaturaConfig, ContentExtractor
+- Add normalize_config_keys() for camelCase → snake_case conversion
+- Replace extractionMode with trafilaturaConfig in actor input schema
+- Update Dockerfile for uv-based installation
+- Add build script for engine wheel distribution
+
+Breaking change: extractionMode replaced with trafilaturaConfig JSON object.
+
+Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>"
+
+# Push to remote
+git push
+```
 
 ## Implementation Notes (from testing)
 
