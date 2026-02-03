@@ -82,7 +82,7 @@ Unlike many extraction tools, Trafilatura has peer-reviewed academic backing. It
 | `startUrls` (required) | URLs to extract content from |  |
 | `globs` | Glob patterns for URLs to include in crawling | `[]` |
 | `excludes` | Glob patterns for URLs to exclude | `[]` |
-| `extractionMode` | `FAVOR_PRECISION`, `BALANCED`, or `FAVOR_RECALL` | `BALANCED` |
+| `trafilaturaConfig` | Extraction options object (e.g., `{"favorPrecision": true}`) | `{}` (balanced) |
 | `maxPagesPerCrawl` | Limit total pages crawled (0 = unlimited) | `0` |
 | `maxCrawlingDepth` | Limit link depth from start URLs | `0` |
 | `saveExtractedMarkdownToKeyValueStore` | Save Markdown to key-value store | `true` |
@@ -131,7 +131,7 @@ Extract all blog posts from a site:
   "globs": [{ "glob": "https://example.com/blog/**" }],
   "linkSelector": "a",
   "maxPagesPerCrawl": 100,
-  "extractionMode": "BALANCED",
+  "trafilaturaConfig": {},
   "saveExtractedMarkdownToKeyValueStore": true
 }
 ```

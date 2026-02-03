@@ -4,7 +4,7 @@
     "saveExtractedMarkdownToKeyValueStore": true,
     "saveExtractedTextToKeyValueStore": false,
     "saveExtractedJsonToKeyValueStore": false,
-    "extractionMode": "BALANCED",
+    "trafilaturaConfig": {},
     "maxRequestRetries": 3,
     "pageLoadTimeoutSecs": 60,
     "maxPagesPerCrawl": 8,

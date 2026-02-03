@@ -1,12 +1,12 @@
 {
   "loadedUrl": "https://www.bbc.com/news/technology",
   "rawHtml": {
-    "hash": "353a57236b954d6bdc48b25e02488200",
-    "length": 365121,
+    "hash": "3cd80e5a8885d2c4ecee7199518fc224",
+    "length": 367071,
     "key": "0dc2cf78d3d75b34-raw.html",
     "url": "https://api.apify.com/v2/key-value-stores/hx5IObQagLB9bUmyG/records/0dc2cf78d3d75b34-raw.html?signature=1Ne93iz46FVYR97qYV3Ux"
   },
-  "loadedAt": "2026-01-31T00:52:29.719398Z",
+  "loadedAt": "2026-02-03T16:06:24.544432Z",
   "metadata": {
     "title": "BBC Technology | Technology, Health, Environment, AI",
     "author": null,
@@ -19,13 +19,13 @@
   "extractedJson": {
     "key": "0dc2cf78d3d75b34.json",
     "url": "https://api.apify.com/v2/key-value-stores/hx5IObQagLB9bUmyG/records/0dc2cf78d3d75b34.json?signature=3oZ3u8G4yaUgnnP6M8Tv",
-    "hash": "4e973e7cfbb53d78a58982fe20622f61",
-    "length": 2370
+    "hash": "ce1850f0e3e464aca42e44fbc7e74c38",
+    "length": 2366
   },
   "extractedMarkdown": {
     "key": "0dc2cf78d3d75b34.md",
     "url": "https://api.apify.com/v2/key-value-stores/hx5IObQagLB9bUmyG/records/0dc2cf78d3d75b34.md?signature=N05gkoLMblDeXd1Mi1b",
-    "hash": "637983dbe5cc619d0b09827d0b1894ec",
-    "length": 1284
+    "hash": "f0c5f0b01c42304451726db25c4a96b1",
+    "length": 1282
   }
 }

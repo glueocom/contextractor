@@ -4,7 +4,7 @@
     "saveExtractedMarkdownToKeyValueStore": true,
     "saveExtractedTextToKeyValueStore": true,
     "saveExtractedJsonToKeyValueStore": false,
-    "extractionMode": "FAVOR_RECALL",
+    "trafilaturaConfig": {"favorRecall": true},
     "maxRequestRetries": 3,
     "pageLoadTimeoutSecs": 90,
     "maxPagesPerCrawl": 2
