@@ -16,7 +16,7 @@ Restructure `/Users/miroslavsekera/r/contextractor/` from flat requirements.txt 
 │       │   └── contextractor_engine/
 │       │       ├── __init__.py
 │       │       ├── extractor.py      # Core extraction wrapper
-│       │       ├── models.py         # ExtractionConfig + result types
+│       │       ├── models.py         # TrafilaturaConfig + result types
 │       │       └── py.typed
 │       └── tests/
 │           └── test_extractor.py
@@ -71,9 +71,9 @@ build-backend = "hatchling.build"
 packages = ["src/contextractor_engine"]
 ```
 
-### ExtractionConfig model — `models.py`
+### TrafilaturaConfig model — `models.py`
 
-Use a **dataclass** (not Pydantic — keep deps minimal for a library). Name: `ExtractionConfig`.
+Use a **dataclass** (not Pydantic — keep deps minimal for a library). Name: `TrafilaturaConfig` (library-specific, allows future additions like `ReadabilityConfig`).
 
 Map all **non-deprecated** `trafilatura.extract()` parameters:
 
@@ -105,21 +105,21 @@ Provide **factory methods** for convenience:
 
 ```python
 @dataclass
-class ExtractionConfig:
+class TrafilaturaConfig:
     # ... fields above with defaults ...
 
     @classmethod
-    def balanced(cls) -> "ExtractionConfig":
+    def balanced(cls) -> "TrafilaturaConfig":
         """Default balanced extraction."""
         return cls()
 
     @classmethod
-    def precision(cls) -> "ExtractionConfig":
+    def precision(cls) -> "TrafilaturaConfig":
         """High precision, less noise."""
         return cls(favor_precision=True)
 
     @classmethod
-    def recall(cls) -> "ExtractionConfig":
+    def recall(cls) -> "TrafilaturaConfig":
         """High recall, more content."""
         return cls(favor_recall=True)
 
@@ -185,8 +185,8 @@ class ContentExtractor:
 
     DEFAULT_FORMATS = ["txt", "markdown", "json", "xml"]
 
-    def __init__(self, config: ExtractionConfig | None = None) -> None:
-        self.config = config or ExtractionConfig.balanced()
+    def __init__(self, config: TrafilaturaConfig | None = None) -> None:
+        self.config = config or TrafilaturaConfig.balanced()
 
     def extract(
         self,
@@ -247,11 +247,11 @@ class ContentExtractor:
 
 ```python
 from .extractor import ContentExtractor
-from .models import ExtractionConfig, ExtractionResult, MetadataResult
+from .models import TrafilaturaConfig, ExtractionResult, MetadataResult
 
 __all__ = [
     "ContentExtractor",
-    "ExtractionConfig",
+    "TrafilaturaConfig",
     "ExtractionResult",
     "MetadataResult",
 ]
@@ -288,25 +288,25 @@ packages = ["src"]
 
 Delete `requirements.txt`.
 
-### Replace `extractionMode` with `extractionConfig`
+### Replace `extractionMode` with `trafilaturaConfig`
 
 In `input_schema.json`, replace the `extractionMode` field with:
 
 ```json
-"extractionConfig": {
+"trafilaturaConfig": {
     "sectionCaption": "Content extraction",
-    "title": "Extraction configuration",
+    "title": "Trafilatura options",
     "type": "object",
-    "description": "Trafilatura extraction options. Leave empty for balanced defaults. Keys: fast, favor_precision, favor_recall, include_comments, include_tables, include_images, include_formatting, include_links, deduplicate, target_language, with_metadata, only_with_metadata, tei_validation, prune_xpath.",
+    "description": "Trafilatura library extraction settings. Leave empty for balanced defaults. Keys: fast, favor_precision, favor_recall, include_comments, include_tables, include_images, include_formatting, include_links, deduplicate, target_language, with_metadata, only_with_metadata, tei_validation, prune_xpath.",
     "editor": "json",
     "default": {},
     "prefill": {}
 }
 ```
 
-The `extractionConfig` object is **optional**. When empty `{}` or absent, defaults to `ExtractionConfig.balanced()`.
+The `trafilaturaConfig` object is **optional**. When empty `{}` or absent, defaults to `TrafilaturaConfig.balanced()`.
 
-Supported JSON keys (map 1:1 to `ExtractionConfig` fields):
+Supported JSON keys (map 1:1 to `TrafilaturaConfig` fields):
 
 ```json
 {
@@ -331,24 +331,24 @@ Supported JSON keys (map 1:1 to `ExtractionConfig` fields):
 
 ### Refactor `src/config.py`
 
-**Important:** Crawlee's `Request.user_data` must be JSON-serializable. Pass the raw config dict, not an `ExtractionConfig` object. Build the `ExtractionConfig` in the handler.
+**Important:** Crawlee's `Request.user_data` must be JSON-serializable. Pass the raw config dict, not an `TrafilaturaConfig` object. Build the `TrafilaturaConfig` in the handler.
 
 ```python
-from contextractor_engine import ExtractionConfig
+from contextractor_engine import TrafilaturaConfig
 
-def build_extraction_config(raw: dict[str, Any] | None) -> ExtractionConfig:
-    """Build ExtractionConfig from raw dict."""
+def build_trafilatura_config(raw: dict[str, Any] | None) -> TrafilaturaConfig:
+    """Build TrafilaturaConfig from raw dict."""
     if not raw:
-        return ExtractionConfig.balanced()
+        return TrafilaturaConfig.balanced()
     # Filter out None values
     filtered = {k: v for k, v in raw.items() if v is not None}
-    return ExtractionConfig(**filtered)
+    return TrafilaturaConfig(**filtered)
 
 def build_crawl_config(actor_input: dict[str, Any]) -> dict[str, Any]:
     """Build crawl configuration from actor input.
 
-    Note: extraction_config_raw is passed as dict for JSON serialization in user_data.
-    The ExtractionConfig object is built in the handler.
+    Note: trafilatura_config_raw is passed as dict for JSON serialization in user_data.
+    The TrafilaturaConfig object is built in the handler.
     """
     return {
         'save_raw_html': actor_input.get('saveRawHtmlToKeyValueStore', False),
@@ -357,7 +357,7 @@ def build_crawl_config(actor_input: dict[str, Any]) -> dict[str, Any]:
         'save_markdown': actor_input.get('saveExtractedMarkdownToKeyValueStore', True),
         'save_xml': actor_input.get('saveExtractedXmlToKeyValueStore', False),
         'save_xmltei': actor_input.get('saveExtractedXmlTeiToKeyValueStore', False),
-        'extraction_config_raw': actor_input.get('extractionConfig', {}),  # Raw dict for JSON serialization
+        'trafilatura_config_raw': actor_input.get('trafilaturaConfig', {}),  # Raw dict for JSON serialization
         'globs': actor_input.get('globs', []),
         'excludes': actor_input.get('excludes', []),
         'link_selector': actor_input.get('linkSelector', ''),
@@ -369,20 +369,20 @@ def build_crawl_config(actor_input: dict[str, Any]) -> dict[str, Any]:
 
 ### Refactor `src/handler.py`
 
-Build `ExtractionConfig` from raw dict in the handler:
+Build `TrafilaturaConfig` from raw dict in the handler:
 
 ```python
-from contextractor_engine import ContentExtractor, ExtractionConfig
+from contextractor_engine import ContentExtractor, TrafilaturaConfig
 
 # In handler:
 handler_config = context.request.user_data.get('config', {})
-extraction_config_raw = handler_config.get('extraction_config_raw', {})
-extraction_config = (
-    ExtractionConfig(**{k: v for k, v in extraction_config_raw.items() if v is not None})
-    if extraction_config_raw
-    else ExtractionConfig.balanced()
+trafilatura_config_raw = handler_config.get('trafilatura_config_raw', {})
+trafilatura_config = (
+    TrafilaturaConfig(**{k: v for k, v in trafilatura_config_raw.items() if v is not None})
+    if trafilatura_config_raw
+    else TrafilaturaConfig.balanced()
 )
-extractor = ContentExtractor(config=extraction_config)
+extractor = ContentExtractor(config=trafilatura_config)
 
 # In extraction:
 result = extractor.extract(html, url=url, output_format="markdown")
@@ -394,7 +394,7 @@ metadata = extractor.extract_metadata(html, url=url)
 Replace direct `trafilatura` calls with `ContentExtractor`:
 
 ```python
-from contextractor_engine import ContentExtractor, ExtractionConfig
+from contextractor_engine import ContentExtractor, TrafilaturaConfig
 
 def extract_metadata(html: str, url: str, extractor: ContentExtractor) -> dict[str, Any]:
     """Extract metadata from HTML."""
@@ -425,7 +425,7 @@ def extract_format(
     return result.content if result else None
 ```
 
-Remove `get_extraction_options()` — replaced by `ExtractionConfig.to_trafilatura_kwargs()`.
+Remove `get_extraction_options()` — replaced by `TrafilaturaConfig.to_trafilatura_kwargs()`.
 Keep `save_content_to_kvs()` and `compute_content_info()` in the actor (storage is actor-specific).
 
 ### Update Dockerfile for uv
@@ -496,7 +496,7 @@ Update to reflect:
 - **Architecture**: Two-package monorepo — engine (library) + actor (app)
 - **Dependencies**: Engine depends on trafilatura only; Actor depends on engine + apify + crawlee
 - **Build**: `uv build --package contextractor-engine` for distribution
-- **ExtractionConfig**: Replaces `extractionMode` enum. Dataclass mapping to trafilatura.extract() params.
+- **TrafilaturaConfig**: Replaces `extractionMode` enum. Dataclass mapping to trafilatura.extract() params.
 - **Docker**: uv-based install with frozen lockfile
 - Remove `requirements.txt` references
 
@@ -504,7 +504,7 @@ Update to reflect:
 
 Update to reflect:
 
-- Replace `extractionMode` row with `extractionConfig` (optional JSON object, defaults to balanced)
+- Replace `extractionMode` row with `trafilaturaConfig` (optional JSON object, defaults to balanced)
 - Document available config fields with types and defaults
 - Note backward compatibility: `{}` or omitted = same as previous `BALANCED` mode
 - Mention that `favor_precision: true` = previous `FAVOR_PRECISION`, `favor_recall: true` = previous `FAVOR_RECALL`
@@ -513,12 +513,12 @@ Update to reflect:
 
 1. Initialize uv workspace at root (`pyproject.toml`, `.python-version`)
 2. Create `packages/contextractor-engine/` with package structure
-3. Implement `models.py` (ExtractionConfig, ExtractionResult, MetadataResult)
+3. Implement `models.py` (TrafilaturaConfig, ExtractionResult, MetadataResult)
 4. Implement `extractor.py` (ContentExtractor)
 5. Write basic tests for engine
 6. Migrate `apps/contextractor/` to use workspace dependency
 7. Refactor actor to use `ContentExtractor` instead of direct trafilatura calls
-8. Replace `extractionMode` with `extractionConfig` in input schema
+8. Replace `extractionMode` with `trafilaturaConfig` in input schema
 9. Update Dockerfile for uv
 10. Create `scripts/build-engine.sh`
 11. Run `uv sync` and verify everything resolves
@@ -532,7 +532,7 @@ These notes were added after implementing and testing the migration:
 
 1. **trafilatura.bare_extraction() returns Document object**: Not a dict. Use `getattr(raw, "field", None)` instead of `raw.get("field")`.
 
-2. **Crawlee Request.user_data must be JSON-serializable**: Cannot pass `ExtractionConfig` dataclass directly. Store raw dict as `extraction_config_raw` and build `ExtractionConfig` in the handler.
+2. **Crawlee Request.user_data must be JSON-serializable**: Cannot pass `TrafilaturaConfig` dataclass directly. Store raw dict as `trafilatura_config_raw` and build `TrafilaturaConfig` in the handler.
 
 3. **browserforge version compatibility**: crawlee's browserforge workaround may break with newer versions. Pin `browserforge<1.2.4` in actor dependencies.
 
