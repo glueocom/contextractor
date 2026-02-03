@@ -7,6 +7,7 @@ from contextractor_engine import (
     ExtractionResult,
     MetadataResult,
     TrafilaturaConfig,
+    get_default_config,
     normalize_config_keys,
 )
 
@@ -60,6 +61,43 @@ class TestTrafilaturaConfig:
         assert "target_language" not in kwargs
         assert "prune_xpath" not in kwargs
         assert "url_blacklist" not in kwargs
+
+    def test_to_json_dict_defaults(self) -> None:
+        """Test that default config exports correctly."""
+        config = TrafilaturaConfig()
+        json_dict = config.to_json_dict()
+
+        assert json_dict["fast"] is False
+        assert json_dict["favorPrecision"] is False
+        assert json_dict["includeComments"] is True
+        assert json_dict["includeTables"] is True
+        assert "targetLanguage" not in json_dict  # None values excluded
+
+    def test_to_json_dict_with_options(self) -> None:
+        """Test config with custom options."""
+        config = TrafilaturaConfig(
+            favor_precision=True,
+            target_language="en",
+            url_blacklist={"spam.com", "ads.com"},
+        )
+        json_dict = config.to_json_dict()
+
+        assert json_dict["favorPrecision"] is True
+        assert json_dict["targetLanguage"] == "en"
+        assert set(json_dict["urlBlacklist"]) == {"spam.com", "ads.com"}
+
+    def test_get_default_json(self) -> None:
+        """Test classmethod default export."""
+        defaults = TrafilaturaConfig.get_default_json()
+        assert isinstance(defaults, dict)
+        assert defaults["includeFormatting"] is True
+
+    def test_get_default_config_function(self) -> None:
+        """Test module-level default export."""
+        defaults = get_default_config()
+        assert isinstance(defaults, dict)
+        assert defaults["includeFormatting"] is True
+        assert defaults["withMetadata"] is True
 
 
 class TestNormalizeConfigKeys:

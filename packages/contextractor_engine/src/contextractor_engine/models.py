@@ -79,6 +79,44 @@ class TrafilaturaConfig:
             kwargs["date_extraction_params"] = self.date_extraction_params
         return kwargs
 
+    def to_json_dict(self) -> dict[str, Any]:
+        """Convert config to JSON-serializable dict with camelCase keys.
+
+        Used for API responses and GUI defaults.
+        Excludes None values and non-serializable types (sets converted to lists).
+        """
+        result: dict[str, Any] = {
+            "fast": self.fast,
+            "favorPrecision": self.favor_precision,
+            "favorRecall": self.favor_recall,
+            "includeComments": self.include_comments,
+            "includeTables": self.include_tables,
+            "includeImages": self.include_images,
+            "includeFormatting": self.include_formatting,
+            "includeLinks": self.include_links,
+            "deduplicate": self.deduplicate,
+            "withMetadata": self.with_metadata,
+            "onlyWithMetadata": self.only_with_metadata,
+            "teiValidation": self.tei_validation,
+        }
+        # Include optional fields only if set
+        if self.target_language is not None:
+            result["targetLanguage"] = self.target_language
+        if self.prune_xpath is not None:
+            result["pruneXpath"] = self.prune_xpath
+        if self.url_blacklist is not None:
+            result["urlBlacklist"] = list(self.url_blacklist)
+        if self.author_blacklist is not None:
+            result["authorBlacklist"] = list(self.author_blacklist)
+        if self.date_extraction_params is not None:
+            result["dateExtractionParams"] = self.date_extraction_params
+        return result
+
+    @classmethod
+    def get_default_json(cls) -> dict[str, Any]:
+        """Get default config as JSON-serializable dict with camelCase keys."""
+        return cls().to_json_dict()
+
 
 @dataclass
 class ExtractionResult:
